@@ -2,10 +2,7 @@ import pandas as pd
 from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objs as go
 
-# Load data from a remote URL
-# data_url = 'https://storage.googleapis.com/nc-education-dashboard/Data/nc-education-data.csv'
-# df = pd.read_csv(data_url)
-# # Uncomment the following line to load data from a local file for testing
+# Uncomment the following line to load data from a local file for testing
 df = pd.read_csv('Data/nc-education-data.csv')
 
 # Data preparation
