@@ -3,10 +3,10 @@ from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objs as go
 
 # Load data from a remote URL
-data_url = 'https://storage.googleapis.com/nc-education-dashboard/Data/nc-education-data.csv'
-df = pd.read_csv(data_url)
+# data_url = 'https://storage.googleapis.com/nc-education-dashboard/Data/nc-education-data.csv'
+# df = pd.read_csv(data_url)
 # # Uncomment the following line to load data from a local file for testing
-# df = pd.read_csv('/Users/sfernandez/Documents/nc-education-dashboard/Data/nc-education-data.csv')
+df = pd.read_csv('Data/nc-education-data.csv')
 
 # Data preparation
 counties = sorted([county for county in df['area_name'].unique() if 'Schools' not in county and 'County' in county])
@@ -135,4 +135,5 @@ def update_charts(selected_county, selected_years):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8080)
+    print("Starting server...") 
+    app.run_server(debug=True, host='0.0.0.0', port=8080)
