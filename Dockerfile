@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy project files into the container
 COPY . /app
-COPY Data/nc-education-data.csv /app/Data/nc-education-data.csv
+COPY Data/nc-education-data.parquet /app/Data/nc-education-data.parquet
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
