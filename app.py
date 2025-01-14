@@ -38,32 +38,6 @@ app.layout = html.Div([
         )
     ], style={'margin-bottom': '30px'}),  # Add space below this section
     
-    # Select Year Range Section
-    html.Div([
-        html.Label("Select Year Range:", style={'font-weight': 'bold'}),
-        html.Div([
-            html.Label("Min Year:", style={'margin-right': '10px'}),
-            dcc.Input(
-                id='min-year-input',
-                type='number',
-                value=1970,  # Default minimum year
-                min=1970,
-                max=2024,
-                step=1,
-                style={'width': '80px', 'margin-right': '20px'}
-            ),
-            html.Label("Max Year:", style={'margin-right': '10px'}),
-            dcc.Input(
-                id='max-year-input',
-                type='number',
-                value=2024,  # Default maximum year
-                min=1970,
-                max=2024,
-                step=1,
-                style={'width': '80px'}
-            )
-        ], style={'display': 'flex', 'align-items': 'center'})
-    ], style={'margin-bottom': '30px'}),  # Add space below this section
     
     # Tabs Section
     dcc.Tabs([
@@ -132,17 +106,13 @@ app.layout = html.Div([
         Output('personnel-admin-by-source', 'figure'),
         Output('graduate-intentions', 'figure')
     ],
-    [Input('county-dropdown', 'value'), Input('min-year-input', 'value'), Input('max-year-input', 'value')]
+    [Input('county-dropdown', 'value')]
 )
-def update_charts(selected_county, selected_min_years, selected_max_years):
+def update_charts(selected_county):
     # Filter data
-    filtered = df[(df['area_name'] == selected_county) &
-                  (df['year'] >= selected_min_years) &
-                  (df['year'] <= selected_max_years)]
+    filtered = df[(df['area_name'] == selected_county) & (df['year'] >= 1970) & (df['year'] <= 2024)]
     
-
-    avg_data = df[(df['year'] >= selected_min_years) & (df['year'] <= selected_max_years)]
-    avg_data = avg_data[avg_data['local_funding_as_perc'].notna()]  # Remove NaN
+    avg_data = df[df['local_funding_as_perc'].notna()]  # Remove NaN
     avg_data = avg_data[avg_data['local_funding_as_perc'] >= 0]  # Remove negative values
     avg_data = avg_data[np.isfinite(avg_data['local_funding_as_perc'])]  # Remove infinite values
     yearly_avg = avg_data.groupby('year')[['local_expenditure_per_pupil', 'local_funding_as_perc']].mean().reset_index()
