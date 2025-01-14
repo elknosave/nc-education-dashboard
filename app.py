@@ -163,7 +163,10 @@ def update_charts(selected_county, selected_years):
     # Add toggle button
     fig12.update_layout(
         title="Public School Enrollment by Race",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Enrollment",
         autosize=True,
         legend=dict(
@@ -211,7 +214,8 @@ def update_charts(selected_county, selected_years):
                               y=filtered['local_funding_as_perc'], mode='lines+markers', name='Funding %'))
     fig21.add_trace(go.Scatter(x=yearly_avg['year'],
                               y=yearly_avg['local_funding_as_perc'], mode='lines', name='Avg Funding %', line=dict(color='gray', dash='dot')))
-    fig21.update_layout(title="Local Public School Funding as % of Total Expenditure", xaxis_title="Year", yaxis_title="%",
+    fig21.update_layout(title="Local Public School Funding as % of Total Expenditure",
+                        xaxis=dict(range=[1978, max(filtered['year']) + 1],title="Year"), yaxis_title="%",
                         autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
 
     fig22 = go.Figure()
@@ -219,7 +223,9 @@ def update_charts(selected_county, selected_years):
                               y=filtered['local_expenditure_per_pupil'], mode='lines+markers', name='Local'))
     fig22.add_trace(go.Scatter(x=yearly_avg['year'],
                               y=yearly_avg['local_expenditure_per_pupil'], mode='lines', name='Avg Local', line=dict(color='gray', dash='dot')))
-    fig22.update_layout(title="Public School Expenditure Per Pupil by Source", xaxis_title="Year", yaxis_title="Expenditure (000s)",
+    fig22.update_layout(title="Public School Expenditure Per Pupil by Source",
+                        xaxis=dict(range=[1978, max(filtered['year']) + 1],
+            title="Year"), yaxis_title="Expenditure (000s)",
                         autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
 
     fig23 = go.Figure()
@@ -286,7 +292,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Dropdown Toggle
     fig23.update_layout(
         title="Public School Expenditure Per Pupil by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[1978, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Expenditure (000s)",
         autosize=True,
         legend=dict(
@@ -400,7 +409,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig31.update_layout(
         title="Current Expenses by Category",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -499,7 +511,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig32.update_layout(
         title="Salaries Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -597,7 +612,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig33.update_layout(
         title="Employee Benefits Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -694,7 +712,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig34.update_layout(
         title="Supplies & Materials Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -791,7 +812,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig35.update_layout(
         title="Purchased Services Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -888,7 +912,10 @@ def update_charts(selected_county, selected_years):
     # Layout with Toggle
     fig36.update_layout(
         title="Instructional Equipment Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -961,7 +988,10 @@ def update_charts(selected_county, selected_years):
     # Update layout
     fig41.update_layout(
         title="Personnel Summary by Category",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         legend=dict(
             orientation="h",  # Horizontal layout for legend
@@ -1014,7 +1044,10 @@ def update_charts(selected_county, selected_years):
     # Add toggle button
     fig42.update_layout(
         title="Teachers Personnel Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -1094,7 +1127,10 @@ def update_charts(selected_county, selected_years):
     # Add toggle button
     fig43.update_layout(
         title="Administrator Personnel Funding by Source",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
@@ -1177,7 +1213,10 @@ def update_charts(selected_county, selected_years):
     # Add toggle button
     fig51.update_layout(
         title="High School Graduates by Post-Graduate Intentions",
-        xaxis_title="Year",
+        xaxis=dict(
+            range=[2003, max(filtered['year']) + 1],
+            title="Year"
+        ),
         yaxis_title="Total",
         autosize=True,
         legend=dict(
