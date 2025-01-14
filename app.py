@@ -48,9 +48,12 @@ app.layout = html.Div([
     ], style={'margin-bottom': '20px'}),
     dcc.Tabs([
         dcc.Tab(label='Pupils', children=[
-            dcc.Graph(id='pupils-total-enrollment'),
-            dcc.Graph(id='pupils-enrollment-by-race'),
-            dcc.Graph(id='pupils-enrollment-public-percentage')
+            dcc.Graph(id='pupils-total-enrollment',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='pupils-enrollment-by-race',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='pupils-enrollment-public-percentage',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Finances', children=[
             dcc.Graph(id='finances-funding-percentage'),
@@ -58,12 +61,17 @@ app.layout = html.Div([
             dcc.Graph(id='finances-source-breakdown')
         ]),
         dcc.Tab(label='Current Expenses', children=[
-            dcc.Graph(id='expenses-total'),
-            dcc.Graph(id='expenses-salaries-by-source'),
+            dcc.Graph(id='expenses-total',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='expenses-salaries-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
             dcc.Graph(id='expenses-employee-benefit-by-source'),
-            dcc.Graph(id='expenses-supplies-by-source'),
-            dcc.Graph(id='expenses-services-by-source'),
-            dcc.Graph(id='expenses-instructional-equipment-by-source')
+            dcc.Graph(id='expenses-supplies-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='expenses-services-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='expenses-instructional-equipment-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Personnel Summary', children=[
             dcc.Graph(id='personnel-total'),
@@ -116,7 +124,8 @@ def update_charts(selected_county, selected_years):
     fig11 = go.Figure()
     fig11.add_trace(go.Scatter(x=filtered['year'], y=filtered['Public School Final Enrollment'],
                               mode='lines+markers', name='Total Enrollment'))
-    fig11.update_layout(title="Total Public School Enrollment", xaxis_title="Year", yaxis_title="Enrollment")
+    fig11.update_layout(title="Total Public School Enrollment", xaxis_title="Year", yaxis_title="Enrollment",
+                        autosize=True)
 
     # Calculate absolute values
     black_enrollment = filtered['pupils_by_race_and_sex_BLACKMale'] + filtered['pupils_by_race_and_sex_BLACKFemale']
@@ -156,28 +165,34 @@ def update_charts(selected_county, selected_years):
         title="Public School Enrollment by Race",
         xaxis_title="Year",
         yaxis_title="Enrollment",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
                         args=[{"visible": [True, True, True, True, False, False, False, False]},
-                            {"yaxis": {"title": "Enrollment"}}]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
                         args=[{"visible": [False, False, False, False, True, True, True, True]},
-                            {"yaxis": {"title": "Percentage"}}]
-                    ),
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0.02,
-                xanchor="left",
-                y=1.15,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -187,7 +202,8 @@ def update_charts(selected_county, selected_years):
     fig14.add_trace(go.Scatter(x=filtered['year'],
                               y=(filtered['Public School Final Enrollment'] / (filtered['Public School Final Enrollment'] +
                               filtered['Nonpublic School Enrollment'])), mode='lines+markers', name='% Public School Enrollment'))
-    fig14.update_layout(title="Public School Enrollment as % of Total Enrollment", xaxis_title="Year", yaxis_title="Percentage")
+    fig14.update_layout(title="Public School Enrollment as % of Total Enrollment", xaxis_title="Year", yaxis_title="Percentage",
+                        autosize=True)
 
     # Finances Tab Charts
     fig21 = go.Figure()
@@ -195,14 +211,16 @@ def update_charts(selected_county, selected_years):
                               y=filtered['local_funding_as_perc'], mode='lines+markers', name='Funding %'))
     fig21.add_trace(go.Scatter(x=yearly_avg['year'],
                               y=yearly_avg['local_funding_as_perc'], mode='lines', name='Avg Funding %', line=dict(color='gray', dash='dot')))
-    fig21.update_layout(title="Local Public School Funding as % of Total Expenditure", xaxis_title="Year", yaxis_title="%")
+    fig21.update_layout(title="Local Public School Funding as % of Total Expenditure", xaxis_title="Year", yaxis_title="%",
+                        autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
 
     fig22 = go.Figure()
     fig22.add_trace(go.Scatter(x=filtered['year'],
                               y=filtered['local_expenditure_per_pupil'], mode='lines+markers', name='Local'))
     fig22.add_trace(go.Scatter(x=yearly_avg['year'],
                               y=yearly_avg['local_expenditure_per_pupil'], mode='lines', name='Avg Local', line=dict(color='gray', dash='dot')))
-    fig22.update_layout(title="Public School Expenditure Per Pupil by Source", xaxis_title="Year", yaxis_title="Expenditure (000s)")
+    fig22.update_layout(title="Public School Expenditure Per Pupil by Source", xaxis_title="Year", yaxis_title="Expenditure (000s)",
+                        autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
 
     fig23 = go.Figure()
     # Absolute Values Traces
@@ -270,30 +288,35 @@ def update_charts(selected_county, selected_years):
         title="Public School Expenditure Per Pupil by Source",
         xaxis_title="Year",
         yaxis_title="Expenditure (000s)",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[{"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Expenditure"}}]  # Update axis title
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[{"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}]  # Update axis title
-                    ),
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,  # Align to the left
-                xanchor="left",
-                y=1,  # Align to the top
-                yanchor="top",
-                pad={"t": 10, "r": 10}  # Add some padding to avoid tight alignment
+                x=0.5,
+                xanchor="center",
+                y=1.2,
+                yanchor="top"
             )
         ]
     )
@@ -379,32 +402,36 @@ def update_charts(selected_county, selected_years):
         title="Current Expenses by Category",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, True, True, True] + [False] * len(percent_data)},
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, True, True, True,
+                                            False, False, False, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False] * 6 + [True] * len(percent_data)},
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, False, False, False,
+                                           True, True, True, True, True, True,]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -474,32 +501,34 @@ def update_charts(selected_county, selected_years):
         title="Salaries Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -570,32 +599,34 @@ def update_charts(selected_county, selected_years):
         title="Employee Benefits Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -665,32 +696,34 @@ def update_charts(selected_county, selected_years):
         title="Supplies & Materials Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -760,32 +793,34 @@ def update_charts(selected_county, selected_years):
         title="Purchased Services Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -855,32 +890,34 @@ def update_charts(selected_county, selected_years):
         title="Instructional Equipment Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[
-                            {"visible": [True, True, True, False, False, False]},  # Toggle traces
-                            {"yaxis": {"title": "Total"}}
-                        ]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[
-                            {"visible": [False, False, False, True, True, True]},  # Toggle traces
-                            {"yaxis": {"title": "Percentage"}}
-                        ]
-                    )
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0,
-                xanchor="left",
-                y=1.1,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
@@ -925,7 +962,17 @@ def update_charts(selected_county, selected_years):
     fig41.update_layout(
         title="Personnel Summary by Category",
         xaxis_title="Year",
-        yaxis_title="Total"
+        yaxis_title="Total",
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
+        autosize=True
 )
 
     # Calculate total funding for teachers
@@ -969,6 +1016,16 @@ def update_charts(selected_county, selected_years):
         title="Teachers Personnel Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
@@ -1039,6 +1096,16 @@ def update_charts(selected_county, selected_years):
         title="Administrator Personnel Funding by Source",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
@@ -1112,28 +1179,36 @@ def update_charts(selected_county, selected_years):
         title="High School Graduates by Post-Graduate Intentions",
         xaxis_title="Year",
         yaxis_title="Total",
+        autosize=True,
+        legend=dict(
+            orientation="h",  # Horizontal layout for legend
+            y=-0.2,  # Place legend below the chart
+            x=0.5,
+            xanchor="center",
+            yanchor="top",
+            title=None,  # Remove "Legend" title
+            traceorder="normal"
+        ),
         updatemenus=[
             dict(
                 type="buttons",
                 direction="left",
                 buttons=[
-                    dict(
-                        label="Show Absolute",
+                    dict(label="Show Absolute",
                         method="update",
-                        args=[{"visible": [True, True, True, True, True, True, False, False, False, False, False, False]},
-                            {"yaxis": {"title": "Total Graduates"}}]
-                    ),
-                    dict(
-                        label="Show Percentage",
+                        args=[{"visible": [True, True, True, True, True, True,
+                                            False, False, False, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
                         method="update",
-                        args=[{"visible": [False, False, False, False, False, False, True, True, True, True, True, True]},
-                            {"yaxis": {"title": "Percentage"}}]
-                    ),
+                        args=[{"visible": [False, False, False, False, False, False,
+                                           True, True, True, True, True, True,]},
+                            {"yaxis": {"title": "Percentage"}}])
                 ],
                 showactive=True,
-                x=0.02,
-                xanchor="left",
-                y=1.15,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
                 yanchor="top"
             )
         ]
