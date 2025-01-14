@@ -50,7 +50,6 @@ app.layout = html.Div([
         dcc.Tab(label='Pupils', children=[
             dcc.Graph(id='pupils-total-enrollment'),
             dcc.Graph(id='pupils-enrollment-by-race'),
-            dcc.Graph(id='pupils-enrollment-white-percentage'),
             dcc.Graph(id='pupils-enrollment-public-percentage')
         ]),
         dcc.Tab(label='Finances', children=[
@@ -82,7 +81,6 @@ app.layout = html.Div([
     [
         Output('pupils-total-enrollment', 'figure'),
         Output('pupils-enrollment-by-race', 'figure'),
-        Output('pupils-enrollment-white-percentage', 'figure'),
         Output('pupils-enrollment-public-percentage', 'figure'),
         Output('finances-funding-percentage', 'figure'),
         Output('finances-expenditure-per-pupil', 'figure'),
@@ -120,29 +118,70 @@ def update_charts(selected_county, selected_years):
                               mode='lines+markers', name='Total Enrollment'))
     fig11.update_layout(title="Total Public School Enrollment", xaxis_title="Year", yaxis_title="Enrollment")
 
-    fig12 = go.Figure()
-    fig12.add_trace(go.Scatter(x=filtered['year'],
-                              y=filtered['pupils_by_race_and_sex_BLACKMale'] + filtered['pupils_by_race_and_sex_BLACKFemale'],
-                              mode='lines', name='Black'))
-    fig12.add_trace(go.Scatter(x=filtered['year'],
-                              y=filtered['pupils_by_race_and_sex_WHITEMale'] + filtered['pupils_by_race_and_sex_WHITEFemale'],
-                              mode='lines', name='White'))
-    fig12.add_trace(go.Scatter(x=filtered['year'],
-                              y=filtered['pupils_by_race_and_sex_HISPANICMale'] + filtered['pupils_by_race_and_sex_HISPANICFemale'],
-                              mode='lines', name='Hispanic'))
-    fig12.add_trace(go.Scatter(x=filtered['year'],
-                              y=filtered['pupils_by_race_and_sex_INDIANMale'] + filtered['pupils_by_race_and_sex_INDIANFemale'] +
-                              filtered['pupils_by_race_and_sex_ASIANMale'] + filtered['pupils_by_race_and_sex_ASIANFemale'] +
-                              filtered['pupils_by_race_and_sex_TWO OR MORE RACESMale'] + filtered['pupils_by_race_and_sex_TWO OR MORE RACESFemale'] +
-                              filtered['pupils_by_race_and_sex_PACIFICISLANDMale'] + filtered['pupils_by_race_and_sex_PACIFICISLANDFemale'],
-                              mode='lines', name='Other'))
-    fig12.update_layout(title="Public School Enrollment by Race", xaxis_title="Year", yaxis_title="Enrollment")
+    # Calculate absolute values
+    black_enrollment = filtered['pupils_by_race_and_sex_BLACKMale'] + filtered['pupils_by_race_and_sex_BLACKFemale']
+    white_enrollment = filtered['pupils_by_race_and_sex_WHITEMale'] + filtered['pupils_by_race_and_sex_WHITEFemale']
+    hispanic_enrollment = filtered['pupils_by_race_and_sex_HISPANICMale'] + filtered['pupils_by_race_and_sex_HISPANICFemale']
+    other_enrollment = (filtered['pupils_by_race_and_sex_INDIANMale'] + filtered['pupils_by_race_and_sex_INDIANFemale'] +
+                        filtered['pupils_by_race_and_sex_ASIANMale'] + filtered['pupils_by_race_and_sex_ASIANFemale'] +
+                        filtered['pupils_by_race_and_sex_TWO OR MORE RACESMale'] + filtered['pupils_by_race_and_sex_TWO OR MORE RACESFemale'] +
+                        filtered['pupils_by_race_and_sex_PACIFICISLANDMale'] + filtered['pupils_by_race_and_sex_PACIFICISLANDFemale'])
 
-    fig13 = go.Figure()
-    fig13.add_trace(go.Scatter(x=filtered['year'],
-                              y=(filtered['pupils_by_race_and_sex_WHITEMale'] + filtered['pupils_by_race_and_sex_WHITEFemale']) /
-                              filtered['pupils_by_race_and_sex_Total'], mode='lines+markers', name='% White'))
-    fig13.update_layout(title="% of Public School Enrollment that is White", xaxis_title="Year", yaxis_title="Percentage")
+    # Calculate total enrollment
+    total_enrollment = black_enrollment + white_enrollment + hispanic_enrollment + other_enrollment
+
+    # Calculate percentage values
+    black_percentage = (black_enrollment / total_enrollment) * 100
+    white_percentage = (white_enrollment / total_enrollment) * 100
+    hispanic_percentage = (hispanic_enrollment / total_enrollment) * 100
+    other_percentage = (other_enrollment / total_enrollment) * 100
+
+    # Create the figure
+    fig12 = go.Figure()
+
+    # Add absolute traces
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=black_enrollment, mode='lines+markers', name='Black (Absolute)', visible=True))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=white_enrollment, mode='lines+markers', name='White (Absolute)', visible=True))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=hispanic_enrollment, mode='lines+markers', name='Hispanic (Absolute)', visible=True))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=other_enrollment, mode='lines+markers', name='Other (Absolute)', visible=True))
+
+    # Add percentage traces
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=black_percentage, mode='lines+markers', name='Black (%)', visible=False))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=white_percentage, mode='lines+markers', name='White (%)', visible=False))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=hispanic_percentage, mode='lines+markers', name='Hispanic (%)', visible=False))
+    fig12.add_trace(go.Scatter(x=filtered['year'], y=other_percentage, mode='lines+markers', name='Other (%)', visible=False))
+
+    # Add toggle button
+    fig12.update_layout(
+        title="Public School Enrollment by Race",
+        xaxis_title="Year",
+        yaxis_title="Enrollment",
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                buttons=[
+                    dict(
+                        label="Show Absolute",
+                        method="update",
+                        args=[{"visible": [True, True, True, True, False, False, False, False]},
+                            {"yaxis": {"title": "Enrollment"}}]
+                    ),
+                    dict(
+                        label="Show Percentage",
+                        method="update",
+                        args=[{"visible": [False, False, False, False, True, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}]
+                    ),
+                ],
+                showactive=True,
+                x=0.02,
+                xanchor="left",
+                y=1.15,
+                yanchor="top"
+            )
+        ]
+    )
 
     fig14 = go.Figure()
     fig14.add_trace(go.Scatter(x=filtered['year'],
@@ -163,7 +202,7 @@ def update_charts(selected_county, selected_years):
                               y=filtered['local_expenditure_per_pupil'], mode='lines+markers', name='Local'))
     fig22.add_trace(go.Scatter(x=yearly_avg['year'],
                               y=yearly_avg['local_expenditure_per_pupil'], mode='lines', name='Avg Local', line=dict(color='gray', dash='dot')))
-    fig22.update_layout(title="Public School Expenditure Per Pupil by Source", xaxis_title="Year", yaxis_title="Expenditure")
+    fig22.update_layout(title="Public School Expenditure Per Pupil by Source", xaxis_title="Year", yaxis_title="Expenditure (000s)")
 
     fig23 = go.Figure()
     # Absolute Values Traces
@@ -230,7 +269,7 @@ def update_charts(selected_county, selected_years):
     fig23.update_layout(
         title="Public School Expenditure Per Pupil by Source",
         xaxis_title="Year",
-        yaxis_title="Expenditure",
+        yaxis_title="Expenditure (000s)",
         updatemenus=[
             dict(
                 type="buttons",
@@ -877,7 +916,7 @@ def update_charts(selected_county, selected_years):
     for category, columns in categories.items():
         fig41.add_trace(go.Scatter(
             x=filtered['year'],
-            y=filtered[columns].sum(axis=1),  # Sum the specified columns row-wise
+            y=filtered[columns].sum(axis=1).replace(0, np.nan),  # Sum the specified columns row-wise
             mode='lines+markers',
             name=category
         ))
@@ -889,62 +928,217 @@ def update_charts(selected_county, selected_years):
         yaxis_title="Total"
 )
 
-    fig42 = go.Figure()
-    fig42.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_LocalFund_Teachers_ Elementary Teachers', 
-                                          'personnel_summary_LocalFund_Teachers_ Other Teachers',
-                                          'personnel_summary_LocalFund_Teachers_ Secondary Teachers']].sum(axis=1), 
-                              mode='lines+markers', name='Local - Teachers'))
-    fig42.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_StateFund_Teachers_ Elementary Teachers', 
-                                          'personnel_summary_StateFund_Teachers_ Other Teachers',
-                                          'personnel_summary_StateFund_Teachers_ Secondary Teachers']].sum(axis=1),
-                              mode='lines+markers', name='State - Teachers'))
-    fig42.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_FederalFund_Teachers_ Elementary Teachers', 
-                                          'personnel_summary_FederalFund_Teachers_ Other Teachers',
-                                          'personnel_summary_FederalFund_Teachers_ Secondary Teachers']].sum(axis=1),
-                              mode='lines+markers', name='Federal - Teachers'))
-    fig42.update_layout(title="Teachers Personnel Funding by Source", xaxis_title="Year", yaxis_title="Total")
+    # Calculate total funding for teachers
+    teachers_local = filtered[['personnel_summary_LocalFund_Teachers_ Elementary Teachers', 
+                            'personnel_summary_LocalFund_Teachers_ Other Teachers',
+                            'personnel_summary_LocalFund_Teachers_ Secondary Teachers']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_LocalFund_Teachers_ Elementary Teachers', 
+                                                     'personnel_summary_LocalFund_Teachers_ Other Teachers',
+                                                     'personnel_summary_LocalFund_Teachers_ Secondary Teachers']].sum(axis=1) == 0)), np.nan)
+    teachers_state = filtered[['personnel_summary_StateFund_Teachers_ Elementary Teachers', 
+                            'personnel_summary_StateFund_Teachers_ Other Teachers',
+                            'personnel_summary_StateFund_Teachers_ Secondary Teachers']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_StateFund_Teachers_ Elementary Teachers', 
+                                                     'personnel_summary_StateFund_Teachers_ Other Teachers',
+                                                     'personnel_summary_StateFund_Teachers_ Secondary Teachers']].sum(axis=1) == 0)), np.nan)
+    teachers_federal = filtered[['personnel_summary_FederalFund_Teachers_ Elementary Teachers', 
+                                'personnel_summary_FederalFund_Teachers_ Other Teachers',
+                                'personnel_summary_FederalFund_Teachers_ Secondary Teachers']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_FederalFund_Teachers_ Elementary Teachers', 
+                                                     'personnel_summary_FederalFund_Teachers_ Other Teachers',
+                                                     'personnel_summary_FederalFund_Teachers_ Secondary Teachers']].sum(axis=1) == 0)), np.nan)
+    teachers_total = teachers_local + teachers_state + teachers_federal
 
+    # Create percentage values
+    teachers_local_percent = (teachers_local / teachers_total) * 100
+    teachers_state_percent = (teachers_state / teachers_total) * 100
+    teachers_federal_percent = (teachers_federal / teachers_total) * 100
+
+    # Create the figure for teachers
+    fig42 = go.Figure()
+
+    # Add absolute traces
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_local, mode='lines+markers', name='Local - Teachers (Absolute)', visible=True))
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_state, mode='lines+markers', name='State - Teachers (Absolute)', visible=True))
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_federal, mode='lines+markers', name='Federal - Teachers (Absolute)', visible=True))
+
+    # Add percentage traces
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_local_percent, mode='lines+markers', name='Local - Teachers (%)', visible=False))
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_state_percent, mode='lines+markers', name='State - Teachers (%)', visible=False))
+    fig42.add_trace(go.Scatter(x=filtered['year'], y=teachers_federal_percent, mode='lines+markers', name='Federal - Teachers (%)', visible=False))
+
+    # Add toggle button
+    fig42.update_layout(
+        title="Teachers Personnel Funding by Source",
+        xaxis_title="Year",
+        yaxis_title="Total",
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                buttons=[
+                    dict(label="Show Absolute",
+                        method="update",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
+                        method="update",
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
+                ],
+                showactive=True,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
+                yanchor="top"
+            )
+        ]
+    )
+
+    # Repeat similar logic for administrators
+    admins_local = filtered[['personnel_summary_LocalFund_Administrators_ Official Adm., Mgrs.', 
+                            'personnel_summary_LocalFund_Administrators_ Principals',
+                            'personnel_summary_LocalFund_Administrators_ Ast. Principals, Teaching',
+                            'personnel_summary_LocalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_LocalFund_Administrators_ Official Adm., Mgrs.', 
+                                                     'personnel_summary_LocalFund_Administrators_ Principals',
+                                                     'personnel_summary_LocalFund_Administrators_ Ast. Principals, Teaching',
+                                                     'personnel_summary_LocalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1) == 0)), np.nan)
+    admins_state = filtered[['personnel_summary_StateFund_Administrators_ Official Adm., Mgrs.', 
+                            'personnel_summary_StateFund_Administrators_ Principals',
+                            'personnel_summary_StateFund_Administrators_ Ast. Principals, Teaching',
+                            'personnel_summary_StateFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_StateFund_Administrators_ Official Adm., Mgrs.', 
+                                                     'personnel_summary_StateFund_Administrators_ Principals',
+                                                     'personnel_summary_StateFund_Administrators_ Ast. Principals, Teaching',
+                                                     'personnel_summary_StateFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1) == 0)), np.nan)
+    admins_federal = filtered[['personnel_summary_FederalFund_Administrators_ Official Adm., Mgrs.', 
+                            'personnel_summary_FederalFund_Administrators_ Principals',
+                            'personnel_summary_FederalFund_Administrators_ Ast. Principals, Teaching',
+                            'personnel_summary_FederalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1).where(~((filtered['year'] < 2005) & (filtered[['personnel_summary_FederalFund_Administrators_ Official Adm., Mgrs.', 
+                                                     'personnel_summary_FederalFund_Administrators_ Principals',
+                                                     'personnel_summary_FederalFund_Administrators_ Ast. Principals, Teaching',
+                                                     'personnel_summary_FederalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1) == 0)), np.nan)
+    admins_total = admins_local + admins_state + admins_federal
+
+    # Create percentage values
+    admins_local_percent = (admins_local / admins_total) * 100
+    admins_state_percent = (admins_state / admins_total) * 100
+    admins_federal_percent = (admins_federal / admins_total) * 100
+
+    # Create the figure for teachers
     fig43 = go.Figure()
-    fig43.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_LocalFund_Administrators_ Official Adm., Mgrs.', 
-                                          'personnel_summary_LocalFund_Administrators_ Principals',
-                                          'personnel_summary_LocalFund_Administrators_ Ast. Principals, Teaching',
-                                          'personnel_summary_LocalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1), 
-                              mode='lines+markers', name='Local - Administrators'))
-    fig43.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_StateFund_Administrators_ Official Adm., Mgrs.', 
-                                          'personnel_summary_StateFund_Administrators_ Principals',
-                                          'personnel_summary_StateFund_Administrators_ Ast. Principals, Teaching',
-                                          'personnel_summary_StateFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1),
-                              mode='lines+markers', name='State - Administrators'))
-    fig43.add_trace(go.Scatter(x=filtered['year'], 
-                              y=filtered[['personnel_summary_FederalFund_Administrators_ Official Adm., Mgrs.', 
-                                          'personnel_summary_FederalFund_Administrators_ Principals',
-                                          'personnel_summary_FederalFund_Administrators_ Ast. Principals, Teaching',
-                                          'personnel_summary_FederalFund_Administrators_Ast. Principals, Nonteaching']].sum(axis=1),
-                              mode='lines+markers', name='Federal - Administrators'))
-    fig43.update_layout(title="Administrator Personnel Funding by Source", xaxis_title="Year", yaxis_title="Total")
+
+    # Add absolute traces
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_local, mode='lines+markers', name='Local - Admins (Absolute)', visible=True))
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_state, mode='lines+markers', name='State - Admins (Absolute)', visible=True))
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_federal, mode='lines+markers', name='Federal - Admins (Absolute)', visible=True))
+
+    # Add percentage traces
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_local_percent, mode='lines+markers', name='Local - Admins (%)', visible=False))
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_state_percent, mode='lines+markers', name='State - Admins (%)', visible=False))
+    fig43.add_trace(go.Scatter(x=filtered['year'], y=admins_federal_percent, mode='lines+markers', name='Federal - Admins (%)', visible=False))
+
+    # Add toggle button
+    fig43.update_layout(
+        title="Administrator Personnel Funding by Source",
+        xaxis_title="Year",
+        yaxis_title="Total",
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                buttons=[
+                    dict(label="Show Absolute",
+                        method="update",
+                        args=[{"visible": [True, True, True, False, False, False]},
+                            {"yaxis": {"title": "Total"}}]),
+                    dict(label="Show Percentage",
+                        method="update",
+                        args=[{"visible": [False, False, False, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}])
+                ],
+                showactive=True,
+                x=0.5,
+                xanchor="center",
+                y=1.2,
+                yanchor="top"
+            )
+        ]
+    )
 
     # Graduate Intentions Tab Chart
-    fig10 = go.Figure()
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_PublicSeniorInstitutions'], mode='lines+markers', name='Public Senior Institution'))
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_PrivateSeniorInstitutions'], mode='lines+markers', name='Private Senior Institution'))
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_CommunityTechnicalCollege'], mode='lines+markers', name='Community Technical College'))
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_PrivateJuniorInstitutions'], mode='lines+markers', name='Private Junior Institution'))
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_TradeBusinessNursing'], mode='lines+markers', name='Trade Business Nursing'))
-    fig10.add_trace(go.Scatter(x=filtered['year'], 
-                               y=filtered['hs_graduate_intentions_Other'], mode='lines+markers', name='Other'))
-    fig10.update_layout(title="High School Graduates by Post-Graduate Intentions", xaxis_title="Year", yaxis_title="Total")
+    # Replace nan with 0 for years between 2005 and 2023
+    filtered = filtered.copy()  # Ensure the original DataFrame is not modified
+    filtered.loc[(filtered['year'] > 2004) & (filtered['year'] < 2024)] = filtered.loc[
+        (filtered['year'] > 2004) & (filtered['year'] < 2024)
+    ].fillna(0)
 
-    return fig11, fig12, fig13, fig14, fig21, fig22, fig23, fig31, fig32, fig33, fig34, fig35, fig36, fig41, fig42, fig43, fig10
+    # Calculate absolute values
+    public_senior = filtered['hs_graduate_intentions_PublicSeniorInstitutions']
+    private_senior = filtered['hs_graduate_intentions_PrivateSeniorInstitutions']
+    community_college = filtered['hs_graduate_intentions_CommunityTechnicalCollege']
+    private_junior = filtered['hs_graduate_intentions_PrivateJuniorInstitutions']
+    trade_nursing = filtered['hs_graduate_intentions_TradeBusinessNursing']
+    other = filtered['hs_graduate_intentions_Other']
+
+    # Calculate total graduates
+    total_graduates = public_senior + private_senior + community_college + private_junior + trade_nursing + other
+
+    # Calculate percentage values
+    public_senior_perc = (public_senior / total_graduates) * 100
+    private_senior_perc = (private_senior / total_graduates) * 100
+    community_college_perc = (community_college / total_graduates) * 100
+    private_junior_perc = (private_junior / total_graduates) * 100
+    trade_nursing_perc = (trade_nursing / total_graduates) * 100
+    other_perc = (other / total_graduates) * 100
+
+    # Create the figure
+    fig51 = go.Figure()
+
+    # Add absolute traces
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=public_senior, mode='lines+markers', name='Public Senior Institution (Absolute)', visible=True))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=private_senior, mode='lines+markers', name='Private Senior Institution (Absolute)', visible=True))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=community_college, mode='lines+markers', name='Community Technical College (Absolute)', visible=True))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=private_junior, mode='lines+markers', name='Private Junior Institution (Absolute)', visible=True))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=trade_nursing, mode='lines+markers', name='Trade Business Nursing (Absolute)', visible=True))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=other, mode='lines+markers', name='Other (Absolute)', visible=True))
+
+    # Add percentage traces
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=public_senior_perc, mode='lines+markers', name='Public Senior Institution (%)', visible=False))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=private_senior_perc, mode='lines+markers', name='Private Senior Institution (%)', visible=False))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=community_college_perc, mode='lines+markers', name='Community Technical College (%)', visible=False))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=private_junior_perc, mode='lines+markers', name='Private Junior Institution (%)', visible=False))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=trade_nursing_perc, mode='lines+markers', name='Trade Business Nursing (%)', visible=False))
+    fig51.add_trace(go.Scatter(x=filtered['year'], y=other_perc, mode='lines+markers', name='Other (%)', visible=False))
+
+    # Add toggle button
+    fig51.update_layout(
+        title="High School Graduates by Post-Graduate Intentions",
+        xaxis_title="Year",
+        yaxis_title="Total",
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="left",
+                buttons=[
+                    dict(
+                        label="Show Absolute",
+                        method="update",
+                        args=[{"visible": [True, True, True, True, True, True, False, False, False, False, False, False]},
+                            {"yaxis": {"title": "Total Graduates"}}]
+                    ),
+                    dict(
+                        label="Show Percentage",
+                        method="update",
+                        args=[{"visible": [False, False, False, False, False, False, True, True, True, True, True, True]},
+                            {"yaxis": {"title": "Percentage"}}]
+                    ),
+                ],
+                showactive=True,
+                x=0.02,
+                xanchor="left",
+                y=1.15,
+                yanchor="top"
+            )
+        ]
+    )
+    return fig11, fig12, fig14, fig21, fig22, fig23, fig31, fig32, fig33, fig34, fig35, fig36, fig41, fig42, fig43, fig51
 
 
 # Run the app
