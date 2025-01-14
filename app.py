@@ -24,28 +24,48 @@ app.title = "NC Public School Education Dashboard"
 
 # Layout with Tabs
 app.layout = html.Div([
+    # Title
     html.H1("NC Public School Education County Data Dashboard", style={'text-align': 'center'}),
+    
+    # Select County Section
     html.Div([
         html.Label("Select County:", style={'font-weight': 'bold'}),
         dcc.Dropdown(
             id='county-dropdown',
             options=[{'label': county, 'value': county} for county in counties],
             value=counties[0],
-            style={'width': '50%'}
-        ),
-        html.Label("Select Year Range:"),
-        dcc.RangeSlider(
-            id='year-slider',
-            min=1970,
-            max=2024,
-            step=1,
-            marks={
-                int(year): {'label': str(year), 'style': {'transform': 'rotate(45deg)', 'font-size': '12px'}}
-                for year in range(1970, 2024, 2)  # Show marks every 2 years
-            },
-            value=[1970, 2024]  # Default range
+            style={'width': '70%'}
         )
-    ], style={'margin-bottom': '20px'}),
+    ], style={'margin-bottom': '30px'}),  # Add space below this section
+    
+    # Select Year Range Section
+    html.Div([
+        html.Label("Select Year Range:", style={'font-weight': 'bold'}),
+        html.Div([
+            html.Label("Min Year:", style={'margin-right': '10px'}),
+            dcc.Input(
+                id='min-year-input',
+                type='number',
+                value=1970,  # Default minimum year
+                min=1970,
+                max=2024,
+                step=1,
+                style={'width': '80px', 'margin-right': '20px'}
+            ),
+            html.Label("Max Year:", style={'margin-right': '10px'}),
+            dcc.Input(
+                id='max-year-input',
+                type='number',
+                value=2024,  # Default maximum year
+                min=1970,
+                max=2024,
+                step=1,
+                style={'width': '80px'}
+            )
+        ], style={'display': 'flex', 'align-items': 'center'})
+    ], style={'margin-bottom': '30px'}),  # Add space below this section
+    
+    # Tabs Section
     dcc.Tabs([
         dcc.Tab(label='Pupils', children=[
             dcc.Graph(id='pupils-total-enrollment',
@@ -56,16 +76,20 @@ app.layout = html.Div([
                       style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Finances', children=[
-            dcc.Graph(id='finances-funding-percentage'),
-            dcc.Graph(id='finances-expenditure-per-pupil'),
-            dcc.Graph(id='finances-source-breakdown')
+            dcc.Graph(id='finances-funding-percentage',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='finances-expenditure-per-pupil',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='finances-source-breakdown',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Current Expenses', children=[
             dcc.Graph(id='expenses-total',
                       style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
             dcc.Graph(id='expenses-salaries-by-source',
                       style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
-            dcc.Graph(id='expenses-employee-benefit-by-source'),
+            dcc.Graph(id='expenses-employee-benefit-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
             dcc.Graph(id='expenses-supplies-by-source',
                       style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
             dcc.Graph(id='expenses-services-by-source',
@@ -74,12 +98,16 @@ app.layout = html.Div([
                       style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Personnel Summary', children=[
-            dcc.Graph(id='personnel-total'),
-            dcc.Graph(id='personnel-teacher-by-source'),
-            dcc.Graph(id='personnel-admin-by-source')
+            dcc.Graph(id='personnel-total',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='personnel-teacher-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'}),
+            dcc.Graph(id='personnel-admin-by-source',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ]),
         dcc.Tab(label='Graduate Intentions', children=[
-            dcc.Graph(id='graduate-intentions')
+            dcc.Graph(id='graduate-intentions',
+                      style={'width': '100%', 'overflowX': 'scroll', 'height': '400px'})
         ])
     ])
 ])
@@ -104,16 +132,16 @@ app.layout = html.Div([
         Output('personnel-admin-by-source', 'figure'),
         Output('graduate-intentions', 'figure')
     ],
-    [Input('county-dropdown', 'value'), Input('year-slider', 'value')]
+    [Input('county-dropdown', 'value'), Input('min-year-input', 'value'), Input('max-year-input', 'value')]
 )
-def update_charts(selected_county, selected_years):
+def update_charts(selected_county, selected_min_years, selected_max_years):
     # Filter data
     filtered = df[(df['area_name'] == selected_county) &
-                  (df['year'] >= selected_years[0]) &
-                  (df['year'] <= selected_years[1])]
+                  (df['year'] >= selected_min_years) &
+                  (df['year'] <= selected_max_years)]
     
 
-    avg_data = df[(df['year'] >= selected_years[0]) & (df['year'] <= selected_years[1])]
+    avg_data = df[(df['year'] >= selected_min_years) & (df['year'] <= selected_max_years)]
     avg_data = avg_data[avg_data['local_funding_as_perc'].notna()]  # Remove NaN
     avg_data = avg_data[avg_data['local_funding_as_perc'] >= 0]  # Remove negative values
     avg_data = avg_data[np.isfinite(avg_data['local_funding_as_perc'])]  # Remove infinite values
