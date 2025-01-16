@@ -211,7 +211,7 @@ def update_charts(selected_county):
     fig21.add_trace(go.Scatter(x=filtered['year'],
                               y=filtered['local_funding_as_perc'], mode='lines+markers', name='Funding %'))
     fig21.add_trace(go.Scatter(x=yearly_avg['year'],
-                              y=yearly_avg['local_funding_as_perc'], mode='lines', name='Avg Funding %', line=dict(color='gray', dash='dot')))
+                              y=yearly_avg['local_funding_as_perc'], mode='lines', name='Avg Funding % For All Counties', line=dict(color='gray', dash='dot')))
     fig21.update_layout(title="Local Public School Funding as % of Total Expenditure",
                         xaxis=dict(range=[1978, max(filtered['year']) + 1],title="Year"), yaxis_title="%",
                         autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
@@ -220,8 +220,8 @@ def update_charts(selected_county):
     fig22.add_trace(go.Scatter(x=filtered['year'],
                               y=filtered['local_expenditure_per_pupil'], mode='lines+markers', name='Local'))
     fig22.add_trace(go.Scatter(x=yearly_avg['year'],
-                              y=yearly_avg['local_expenditure_per_pupil'], mode='lines', name='Avg Local', line=dict(color='gray', dash='dot')))
-    fig22.update_layout(title="Public School Expenditure Per Pupil by Source",
+                              y=yearly_avg['local_expenditure_per_pupil'], mode='lines', name='Avg Local For All Counties', line=dict(color='gray', dash='dot')))
+    fig22.update_layout(title="Public School Local Expenditure Per Pupil",
                         xaxis=dict(range=[1978, max(filtered['year']) + 1],
             title="Year"), yaxis_title="Expenditure (000s)",
                         autosize=True, legend=dict(orientation="h", y=-0.2, x=0.5, xanchor="center", yanchor="top", title=None, traceorder="normal"))
