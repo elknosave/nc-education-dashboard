@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from dash import Dash, dcc, html, Input, Output
@@ -1255,4 +1256,5 @@ def update_charts(selected_county):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8080)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(debug=True, host='0.0.0.0', port=port)
