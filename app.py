@@ -850,7 +850,7 @@ def update_charts(selected_county):
 
     # Calculate total instructional equipment for percentage calculation
     total_instructional_equipment = (
-        filtered['current_expense_SourceLocal_EMPLOYEE BENEFITS'] +
+        filtered['current_expense_SourceLocal_INSTRUCTIONAL EQUIP.'] +
         filtered['current_expense_SourceState_INSTRUCTIONAL EQUIP.'] +
         filtered['current_expense_SourceFederal_INSTRUCTIONAL EQUIP.']
     ).fillna(0)
