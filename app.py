@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from dash import Dash, dcc, html, Input, Output
@@ -850,7 +851,7 @@ def update_charts(selected_county):
 
     # Calculate total instructional equipment for percentage calculation
     total_instructional_equipment = (
-        filtered['current_expense_SourceLocal_EMPLOYEE BENEFITS'] +
+        filtered['current_expense_SourceLocal_INSTRUCTIONAL EQUIP.'] +
         filtered['current_expense_SourceState_INSTRUCTIONAL EQUIP.'] +
         filtered['current_expense_SourceFederal_INSTRUCTIONAL EQUIP.']
     ).fillna(0)
@@ -1255,4 +1256,5 @@ def update_charts(selected_county):
 
 # Run the app
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8080)
+    port = int(os.environ.get('PORT', 8080))
+    app.run(debug=True, host='0.0.0.0', port=port)
